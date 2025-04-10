@@ -38,4 +38,6 @@ class IAHelperThread(threading.Thread):
             self.callback(resultado)
         except Exception as e:
             self.callback(f"Error al conectar con la IA: {e}")
+            suggestion = solicitar_sugerencia("TorresHanoi", state)
+            return suggestion
 

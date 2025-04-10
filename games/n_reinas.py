@@ -7,7 +7,6 @@ class NReinas:
         self.soluciones = []
 
     def es_seguro(self, fila, columna):
-        # Comprobar filas y diagonales hacia arriba
         for i in range(fila):
             if self.tablero[i][columna] == 1:
                 return False
@@ -19,7 +18,6 @@ class NReinas:
 
     def resolver(self, fila=0):
         if fila == self.n:
-            # Guardar una copia de la solución
             self.soluciones.append([fila[:] for fila in self.tablero])
             return
         for columna in range(self.n):
@@ -36,4 +34,5 @@ class NReinas:
     def estado_a_json(self):
         import json
         return json.dumps(self.tablero)
+
 

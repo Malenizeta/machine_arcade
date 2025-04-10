@@ -1,47 +1,60 @@
-# gui/menu.py
+# main.py
 
-import tkinter as tk
-from gui.n_reinas_gui import NReinasGUI
-from gui.caballo_gui import CaballoGUI
-from gui.torres_hanoi_gui import TorresHanoiGUI
+import gradio as gr
+from gui.n_reinas_gui import solve_n_reinas, suggestion_n_reinas
+from gui.caballo_gui import solve_caballo, suggestion_caballo
+from gui.torres_hanoi_gui import solve_hanoi, suggestion_hanoi
+from ia_client import consultar_chatbot
 
-class MenuGUI(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_menu()
+def chatbot_response(question):
+    try:
+        response = consultar_chatbot(question)
+        return response
+    except Exception as e:
+        return f"Error: {e}"
 
-    def create_menu(self):
-        self.label = tk.Label(self, text="Bienvenido a la Máquina Arcade Distribuida con IA")
-        self.label.pack(pady=10)
+def build_interface():
+    with gr.Blocks() as demo:
+        gr.Markdown("# Máquina Arcade Distribuida con IA")
         
-        self.btn_n_reinas = tk.Button(self, text="Juego: N Reinas", command=self.abrir_n_reinas)
-        self.btn_n_reinas.pack(pady=5)
-        
-        self.btn_caballo = tk.Button(self, text="Juego: Recorrido del Caballo", command=self.abrir_caballo)
-        self.btn_caballo.pack(pady=5)
-        
-        self.btn_hanoi = tk.Button(self, text="Juego: Torres de Hanói", command=self.abrir_hanoi)
-        self.btn_hanoi.pack(pady=5)
-        
-        self.btn_salir = tk.Button(self, text="Salir", command=self.master.quit)
-        self.btn_salir.pack(pady=10)
+        with gr.Tab("N Reinas"):
+            n_input = gr.Number(label="Número de reinas", value=8, precision=0)
+            solve_btn = gr.Button("Resolver N Reinas")
+            result_n = gr.Textbox(label="Solución", lines=10)
+            ia_btn_n = gr.Button("Ayuda IA")
+            ia_result_n = gr.Textbox(label="Sugerencia IA", lines=5)
+            
+            solve_btn.click(fn=solve_n_reinas, inputs=n_input, outputs=result_n)
+            ia_btn_n.click(fn=suggestion_n_reinas, inputs=n_input, outputs=ia_result_n)
+            
+        with gr.Tab("Recorrido del Caballo"):
+            size_input = gr.Number(label="Tamaño del tablero", value=8, precision=0)
+            solve_btn_c = gr.Button("Resolver Recorrido del Caballo")
+            result_c = gr.Textbox(label="Recorrido", lines=10)
+            ia_btn_c = gr.Button("Ayuda IA")
+            ia_result_c = gr.Textbox(label="Sugerencia IA", lines=5)
+            
+            solve_btn_c.click(fn=solve_caballo, inputs=size_input, outputs=result_c)
+            ia_btn_c.click(fn=suggestion_caballo, inputs=size_input, outputs=ia_result_c)
+            
+        with gr.Tab("Torres de Hanói"):
+            disks_input = gr.Number(label="Número de discos", value=3, precision=0)
+            solve_btn_h = gr.Button("Resolver Torres de Hanói")
+            result_h = gr.Textbox(label="Movimientos", lines=10)
+            ia_btn_h = gr.Button("Ayuda IA")
+            ia_result_h = gr.Textbox(label="Sugerencia IA", lines=5)
+            
+            solve_btn_h.click(fn=solve_hanoi, inputs=disks_input, outputs=result_h)
+            ia_btn_h.click(fn=suggestion_hanoi, inputs=disks_input, outputs=ia_result_h)
+            
+        with gr.Tab("Chatbot"):
+            chatbot_input = gr.Textbox(label="Pregunta sobre fórmulas o estrategias", lines=2)
+            chatbot_btn = gr.Button("Consultar Chatbot")
+            chatbot_output = gr.Textbox(label="Respuesta del Chatbot", lines=5)
+            chatbot_btn.click(fn=chatbot_response, inputs=chatbot_input, outputs=chatbot_output)
+            
+    return demo
 
-    def abrir_n_reinas(self):
-        ventana = tk.Toplevel(self.master)
-        ventana.title("Juego N Reinas")
-        app = NReinasGUI(master=ventana)
-        app.mainloop()
-
-    def abrir_caballo(self):
-        ventana = tk.Toplevel(self.master)
-        ventana.title("Recorrido del Caballo")
-        app = CaballoGUI(master=ventana)
-        app.mainloop()
-
-    def abrir_hanoi(self):
-        ventana = tk.Toplevel(self.master)
-        ventana.title("Torres de Hanói")
-        app = TorresHanoiGUI(master=ventana)
-        app.mainloop()
+if __name__ == "__main__":
+    demo = build_interface()
+    demo.launch()

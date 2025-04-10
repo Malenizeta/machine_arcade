@@ -30,3 +30,4 @@ class CaballoTour:
     def estado_a_json(self):
         import json
         return json.dumps(self.tablero)
+
