@@ -29,6 +29,7 @@ class TorresHanoi:
 
     def estado_a_json(self):
         import json
+        # Convierte las varillas a una cadena JSON
         estado = {
             "origen": self.origen,
             "destino": self.destino,

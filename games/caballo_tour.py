@@ -30,4 +30,5 @@ class CaballoTour:
 
     def estado_a_json(self):
         import json
+        # Convierte el tablero actual a una cadena JSON
         return json.dumps(self.tablero)
