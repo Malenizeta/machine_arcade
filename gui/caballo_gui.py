@@ -24,3 +24,4 @@ def suggestion_caballo(tamaño):
         return f"Error: {e}"
 
 
+

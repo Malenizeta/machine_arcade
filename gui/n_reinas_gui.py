@@ -21,3 +21,4 @@ def suggestion_n_reinas(n):
     except Exception as e:
         return f"Error: {e}"
 
+

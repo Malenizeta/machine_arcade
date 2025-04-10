@@ -22,3 +22,4 @@ def suggestion_hanoi(n_discos):
         return f"Error: {e}"
 
 
+
