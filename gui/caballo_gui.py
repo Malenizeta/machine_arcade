@@ -1,5 +1,3 @@
-# gui/caballo_gui.py
-
 from games.caballo_tour import CaballoTour
 from ia_client import solicitar_sugerencia
 
@@ -24,4 +22,5 @@ def suggestion_caballo(tamaño):
         return suggestion
     except Exception as e:
         return f"Error: {e}"
+
 

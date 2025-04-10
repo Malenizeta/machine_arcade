@@ -1,5 +1,3 @@
-# gui/n_reinas_gui.py
-
 from games.n_reinas import NReinas
 from ia_client import solicitar_sugerencia
 

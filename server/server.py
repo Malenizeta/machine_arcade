@@ -1,5 +1,3 @@
-# server/server.py
-
 import socket
 import threading
 import json
@@ -63,5 +61,6 @@ def iniciar_servidor():
 
 if __name__ == "__main__":
     iniciar_servidor()
+
 
 

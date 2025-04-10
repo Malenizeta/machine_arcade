@@ -1,5 +1,3 @@
-# games/torres_hanoi.py
-
 class TorresHanoi:
     def __init__(self, n_discos):
         self.n_discos = n_discos

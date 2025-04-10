@@ -1,5 +1,3 @@
-# gui/torres_hanoi_gui.py
-
 from games.torres_hanoi import TorresHanoi
 from ia_client import solicitar_sugerencia
 
@@ -22,4 +20,5 @@ def suggestion_hanoi(n_discos):
         return suggestion
     except Exception as e:
         return f"Error: {e}"
+
 

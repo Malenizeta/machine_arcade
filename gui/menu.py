@@ -1,10 +1,48 @@
-# main.py
-
 import gradio as gr
 from gui.n_reinas_gui import solve_n_reinas, suggestion_n_reinas
 from gui.caballo_gui import solve_caballo, suggestion_caballo
 from gui.torres_hanoi_gui import solve_hanoi, suggestion_hanoi
 from ia_client import consultar_chatbot
+
+# CSS personalizado para un estilo retro
+custom_css = """
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    background-color: #000;
+    color: #00FF00;
+    font-family: 'Press Start 2P', cursive;
+}
+.gradio-container {
+    background: #111;
+    border: 2px solid #00FF00;
+    border-radius: 8px;
+    padding: 20px;
+}
+h1, h2, h3, .gradio-title, .md {
+    color: #00FF00 !important;
+}
+.gradio-tab label {
+    background-color: #222;
+    border: 2px solid #00FF00;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+.gradio-button {
+    background-color: #00FF00 !important;
+    color: #000 !important;
+    border: none;
+    font-family: 'Press Start 2P', cursive;
+    padding: 10px 20px;
+    margin: 5px;
+}
+.gradio-textbox {
+    background-color: #000;
+    color: #00FF00;
+    border: 2px solid #00FF00;
+    font-family: 'Press Start 2P', cursive;
+}
+"""
 
 def chatbot_response(question):
     try:
@@ -14,8 +52,8 @@ def chatbot_response(question):
         return f"Error: {e}"
 
 def build_interface():
-    with gr.Blocks() as demo:
-        gr.Markdown("# Máquina Arcade Distribuida con IA")
+    with gr.Blocks(css=custom_css) as demo:
+        gr.Markdown("# Máquina Arcade Distribuida con IA - Retro Edition")
         
         with gr.Tab("N Reinas"):
             n_input = gr.Number(label="Número de reinas", value=8, precision=0)
@@ -58,3 +96,4 @@ def build_interface():
 if __name__ == "__main__":
     demo = build_interface()
     demo.launch()
+

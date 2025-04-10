@@ -1,5 +1,3 @@
-# games/n_reinas.py
-
 class NReinas:
     def __init__(self, n):
         self.n = n
@@ -34,5 +32,6 @@ class NReinas:
     def estado_a_json(self):
         import json
         return json.dumps(self.tablero)
+
 
 
