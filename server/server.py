@@ -9,17 +9,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, DateTime, create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Declaración de la base de los modelos
 Base = declarative_base()
 
 class GameResult(Base):
     __tablename__ = 'game_results'
     id = Column(Integer, primary_key=True)
     game_name = Column(String(50))
-    details = Column(Text)  # Se almacena el JSON de detalles como texto
+    details = Column(Text)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
-# Crear el motor SQLAlchemy con SQLite (archivo results.db)
 engine = create_engine('sqlite:///results.db', echo=True)
 Base.metadata.create_all(engine)
 
@@ -39,12 +37,11 @@ def manejar_cliente(conn, addr):
             try:
                 payload = json.loads(data.decode())
                 game_name = payload.get("game_name", "Desconocido")
-                # Convertir los detalles a cadena JSON
                 details = json.dumps(payload.get("details", {}))
                 resultado = GameResult(game_name=game_name, details=details)
                 session.add(resultado)
                 session.commit()
-                print(f"Guardado resultado para el juego: {game_name}")
+                print(f"Guardado resultado para {game_name}")
                 conn.sendall(b"Resultado guardado")
             except Exception as e:
                 session.rollback()
@@ -66,3 +63,4 @@ def iniciar_servidor():
 
 if __name__ == "__main__":
     iniciar_servidor()
+

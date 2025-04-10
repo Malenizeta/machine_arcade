@@ -9,20 +9,17 @@ class NReinas:
     def es_seguro(self, fila, columna):
         # Comprobar filas y diagonales hacia arriba
         for i in range(fila):
-            # Revisa columna
             if self.tablero[i][columna] == 1:
                 return False
-            # Revisa diagonal izquierda
             if columna - (fila - i) >= 0 and self.tablero[i][columna - (fila - i)] == 1:
                 return False
-            # Revisa diagonal derecha
             if columna + (fila - i) < self.n and self.tablero[i][columna + (fila - i)] == 1:
                 return False
         return True
 
     def resolver(self, fila=0):
         if fila == self.n:
-            # Almacenamos una copia profunda de la solución
+            # Guardar una copia de la solución
             self.soluciones.append([fila[:] for fila in self.tablero])
             return
         for columna in range(self.n):
@@ -38,5 +35,5 @@ class NReinas:
 
     def estado_a_json(self):
         import json
-        # Convierte el tablero actual a una cadena JSON
         return json.dumps(self.tablero)
+

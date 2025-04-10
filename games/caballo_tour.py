@@ -4,7 +4,6 @@ class CaballoTour:
     def __init__(self, tamaño=8):
         self.tamaño = tamaño
         self.tablero = [[-1 for _ in range(tamaño)] for _ in range(tamaño)]
-        # Posibles movimientos del caballo
         self.movimientos = [(2, 1), (1, 2), (-1, 2), (-2, 1),
                             (-2, -1), (-1, -2), (1, -2), (2, -1)]
 

@@ -23,7 +23,6 @@ class TorresHanoi:
 
     def get_solucion(self):
         self.movimientos = []
-        # Se usa copia de las listas para no alterar el estado original
         self.resolver(self.n_discos, self.origen.copy(), self.destino, self.auxiliar.copy())
         return self.movimientos
 
