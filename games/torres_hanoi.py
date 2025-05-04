@@ -183,13 +183,15 @@ class Game(ColorConstants):
 
         scaled_brick = pygame.transform.smoothscale(base_image, (int(brick_width), brick_height))
 
-        # Itera desde el disco más pequeño (índice 0) hacia el más grande (índice n_discs - 1)
+        # Y desde donde se empiezan a apilar (desde abajo hacia arriba)
+        y_offset = self.BOARD_Y
+
         for i in range(self.n_discs):
             repeat_count = self.n_discs - i
             disc_width = int(brick_width * repeat_count)
-            disc_height = brick_height
+            disc_height = brick_height  # Puedes variar esto si quieres discos de diferente alto
 
-            # Crear disco con superficie vacía
+            # Crear superficie del disco
             disc_image = pygame.Surface((disc_width, disc_height), pygame.SRCALPHA)
             for j in range(repeat_count):
                 disc_image.blit(scaled_brick, (j * brick_width, 0))
@@ -200,8 +202,10 @@ class Game(ColorConstants):
 
             # Centrado horizontal
             disc.rect.x = self.BOARD_X - (disc.rect.width / 2) + (self.POS_WIDTH / 2)
-            # Vertical (pila)
-            disc.rect.y = self.BOARD_Y - disc.rect.height - (disc.rect.height * i)
+
+            # Colocación vertical acumulativa
+            y_offset -= disc_height
+            disc.rect.y = y_offset
 
             self.discs.append(disc)
             self.positions[0].discs.append(disc)

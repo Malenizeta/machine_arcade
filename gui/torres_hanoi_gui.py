@@ -185,13 +185,17 @@ while not done:
                         game.positions[current_pos].discs.remove(game.discs[disc_index])
                         game.discs[disc_index].current_pos = new_pos
                         game.positions[new_pos].discs.append(game.discs[disc_index])
+                        
+                        # Ajustar posición horizontal
+                        disc = game.discs[disc_index]
+                        disc_width = disc.rect.width
+                        disc.rect.x = game.positions[new_pos].rect.x - (disc_width // 2) + (game.POS_WIDTH // 2)
+
+                        # Ajustar posición vertical
                         new_pos_length = len(game.positions[new_pos].discs)
-                        game.discs[disc_index].rect.x = game.positions[new_pos].rect.x - (
-                            (game.DISC_WIDTH / (game.discs[disc_index].id + 1) / 2) - (game.DISC_HEIGHT / 2)
-                        )
-                        game.discs[disc_index].rect.y = (game.BOARD_Y - game.DISC_HEIGHT) - (
-                            game.DISC_HEIGHT * (new_pos_length - 1)
-                        )
+                        disc_height = disc.rect.height
+                        disc.rect.y = game.BOARD_Y - disc_height * new_pos_length
+
                         # Verificar si el juego ha terminado
                         if len(game.positions[2].discs) == game.n_discs:
                             game_over = True
