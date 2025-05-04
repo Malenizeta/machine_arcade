@@ -8,7 +8,7 @@ class ColorConstants():
     GREEN = (0, 255, 0)
     WHITE = (255, 255, 255)
     BACKGROUND = (240, 248, 255)
-    BOARD_COLOR = (153, 76, 0)
+    BOARD_COLOR = (0, 0, 0)
 
 # Generic Block class
 class Block(pygame.sprite.Sprite):
@@ -33,19 +33,17 @@ class Position(Block):
 # Game discs class
 class Disc(Block):
     image_path = os.path.join(os.path.dirname(__file__), "../assets/images/Ladrillo.png")
-    
-    def __init__(self, current_pos, id, color, width, height):
-        super().__init__(color, width, height)
+
+    def __init__(self, current_pos, id, color, repeat_count):
+        # Solo se usa como placeholder, real image se asigna desde draw_discs
+        super().__init__(color, 0, 0)
         self.current_pos = current_pos
         self.id = id
-        self.original_image = pygame.image.load(self.image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.original_image, (int(width), int(height)))
-        self.rect = self.image.get_rect()
-        self.width = width
-        self.height = height
 
-    def is_clicked(self):
-        return pygame.mouse.get_pressed()[0] and self.rect.collidepoint(pygame.mouse.get_pos())
+
+
+
+
 
 # Buttons class
 class Button(Block):
@@ -143,16 +141,16 @@ class Game(ColorConstants):
         self.BOARD_WIDTH = SCREEN_WIDTH / 2
         self.BOARD_HEIGHT = 50
         self.BOARD_X = SCREEN_WIDTH * 0.25
-        self.BOARD_Y = SCREEN_HEIGHT - 55
-        self.POS_WIDTH = 20
+        self.BOARD_Y = SCREEN_HEIGHT - 130
+        self.POS_WIDTH = 10
         self.POS_HEIGHT = 200
         self.DISC_WIDTH = 200
         self.DISC_HEIGHT = self.POS_WIDTH
         self.positions = []
         self.discs = []
-        self.game_board = Block(self.BOARD_COLOR, self.BOARD_WIDTH, self.BOARD_HEIGHT)
-        self.game_board.rect.x = self.BOARD_X
-        self.game_board.rect.y = self.BOARD_Y
+        # self.game_board = Block(self.BOARD_COLOR, self.BOARD_WIDTH, self.BOARD_HEIGHT)
+        # self.game_board.rect.x = self.BOARD_X
+        # self.game_board.rect.y = self.BOARD_Y
         first_pos = Position(0, self.BOARD_COLOR, self.POS_WIDTH, self.POS_HEIGHT)
         first_pos.rect.x = self.BOARD_X
         first_pos.rect.y = self.BOARD_Y - self.POS_HEIGHT
@@ -163,7 +161,8 @@ class Game(ColorConstants):
         third_pos.rect.x = (self.BOARD_X + self.BOARD_WIDTH) - self.POS_WIDTH
         third_pos.rect.y = self.BOARD_Y - self.POS_HEIGHT
         self.positions = [first_pos, second_pos, third_pos]
-        self.sprites_list.add([self.game_board, self.positions])
+        #self.sprites_list.add([self.game_board, self.positions])
+        self.sprites_list.add(self.positions)
         self.pos_sprites_list.add(self.positions)
 
     def set_n_discs(self, n_discs):
@@ -177,31 +176,32 @@ class Game(ColorConstants):
         base_image = pygame.image.load(Disc.image_path).convert_alpha()
         img_width, img_height = base_image.get_size()
 
+        MAX_DISK_WIDTH = 200  # ancho máximo del disco más grande
+        brick_width = MAX_DISK_WIDTH / self.n_discs
+        aspect_ratio = img_height / img_width
+        brick_height = int(brick_width * aspect_ratio)
+
+        scaled_brick = pygame.transform.smoothscale(base_image, (int(brick_width), brick_height))
+
+        # Itera desde el disco más pequeño (índice 0) hacia el más grande (índice n_discs - 1)
         for i in range(self.n_discs):
-            width = self.DISC_WIDTH / (i + 1)
-            height = self.DISC_HEIGHT  # altura fija
+            repeat_count = self.n_discs - i
+            disc_width = int(brick_width * repeat_count)
+            disc_height = brick_height
 
-            # Escalado proporcional a la altura
-            scale_factor = height / img_height
-            tile_width = int(img_width * scale_factor)
-            tile_height = int(height)
+            # Crear disco con superficie vacía
+            disc_image = pygame.Surface((disc_width, disc_height), pygame.SRCALPHA)
+            for j in range(repeat_count):
+                disc_image.blit(scaled_brick, (j * brick_width, 0))
 
-            scaled_tile = pygame.transform.smoothscale(base_image, (tile_width, tile_height))
-
-            # Calcular cuántas veces cabe en el ancho del disco
-            tiles_needed = int(width // tile_width) + 1
-
-            # Crear superficie para el disco
-            disc_image = pygame.Surface((int(width), tile_height), pygame.SRCALPHA)
-            for j in range(tiles_needed):
-                disc_image.blit(scaled_tile, (j * tile_width, 0))
-
-            # Crear el objeto Disc y asignar la imagen
-            disc = Disc(0, i, self.BOARD_COLOR, width, height)
+            disc = Disc(0, i, self.BOARD_COLOR, repeat_count)
             disc.image = disc_image
             disc.rect = disc_image.get_rect()
-            disc.rect.x = self.BOARD_X - (width / 2) + (self.POS_WIDTH / 2)
-            disc.rect.y = self.BOARD_Y - height - (height * i)
+
+            # Centrado horizontal
+            disc.rect.x = self.BOARD_X - (disc.rect.width / 2) + (self.POS_WIDTH / 2)
+            # Vertical (pila)
+            disc.rect.y = self.BOARD_Y - disc.rect.height - (disc.rect.height * i)
 
             self.discs.append(disc)
             self.positions[0].discs.append(disc)

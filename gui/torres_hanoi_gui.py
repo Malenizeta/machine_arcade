@@ -4,9 +4,6 @@ import sys
 import games.torres_hanoi as models
 import os
 
-"""
-MG's Tower of Hanoi for Python - Main Module
-"""
 # Define screen constants
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
