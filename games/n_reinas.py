@@ -1,42 +1,34 @@
-# games/n_reinas.py
 
-class NReinas:
-    def __init__(self, n):
-        self.n = n
-        self.tablero = [[0] * n for _ in range(n)]
-        self.soluciones = []
+import random
 
-    def es_seguro(self, fila, columna):
-        # Comprobar filas y diagonales hacia arriba
-        for i in range(fila):
-            # Revisa columna
-            if self.tablero[i][columna] == 1:
-                return False
-            # Revisa diagonal izquierda
-            if columna - (fila - i) >= 0 and self.tablero[i][columna - (fila - i)] == 1:
-                return False
-            # Revisa diagonal derecha
-            if columna + (fila - i) < self.n and self.tablero[i][columna + (fila - i)] == 1:
-                return False
-        return True
+def share_diagonal(x0, y0, x1, y1):
+    dy = y1 - y0
+    dx = x1 - x0
 
-    def resolver(self, fila=0):
-        if fila == self.n:
-            # Almacenamos una copia profunda de la solución
-            self.soluciones.append([fila[:] for fila in self.tablero])
-            return
-        for columna in range(self.n):
-            if self.es_seguro(fila, columna):
-                self.tablero[fila][columna] = 1
-                self.resolver(fila + 1)
-                self.tablero[fila][columna] = 0
+    return abs(dx) == abs(dy)
 
-    def get_solucion(self):
-        if not self.soluciones:
-            self.resolver()
-        return self.soluciones[0] if self.soluciones else None
+def col_clashes(exist_chess, index):
 
-    def estado_a_json(self):
-        import json
-        # Convierte el tablero actual a una cadena JSON
-        return json.dumps(self.tablero)
+    for i in range(index):
+        if share_diagonal(i, exist_chess[i], index, exist_chess[index]):
+            return True
+
+    return False
+
+def has_clashes_2(chess_list):
+    for i, item in enumerate(chess_list):
+        if item == -1:
+            continue
+
+        for j, pre_item in enumerate(chess_list):
+            if j >= i:
+                break
+
+            if pre_item == -1:  
+                continue
+
+            if share_diagonal(j, pre_item, i, item):
+                print("conflict: index {0} value {1} conflicts with \ index {2} value {3}".format(j, pre_item, i, item))
+                return True
+
+    return False
