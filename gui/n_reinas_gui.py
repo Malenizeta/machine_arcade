@@ -1,51 +1,131 @@
-# gui/n_reinas_gui.py
+import pygame, sys, random, os
+from pygame.locals import *
+import math
 
-import tkinter as tk
-from tkinter import messagebox
-from games.n_reinas import NReinas
-from ia_client import IAHelperThread
 
-class NReinasGUI(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.pack()
-        self.n_reinas = None
-        self.create_widgets()
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-    def create_widgets(self):
-        self.label = tk.Label(self, text="Ingrese el número de reinas:")
-        self.label.pack(pady=5)
+from games import n_reinas
 
-        self.entry = tk.Entry(self)
-        self.entry.pack(pady=5)
+BASICFONTSIZE = 20
 
-        self.btn_iniciar = tk.Button(self, text="Iniciar Juego", command=self.iniciar_juego)
-        self.btn_iniciar.pack(pady=5)
+class PeachSprite:
 
-        self.btn_ayuda = tk.Button(self, text="Ayuda IA", command=self.ayuda_ia)
-        self.btn_ayuda.pack(pady=5)
+    def __init__(self, img, target_posn):
+        self.image = img
+        self.target_posn = target_posn
+        self.posn = self.target_posn
+        self.y_velocity = 0
+        self.dragging = False
 
-        self.txt_resultado = tk.Text(self, height=10, width=50)
-        self.txt_resultado.pack(pady=5)
+    def update(self):
+        return
 
-    def iniciar_juego(self):
-        try:
-            n = int(self.entry.get())
-            self.n_reinas = NReinas(n)
-            solucion = self.n_reinas.get_solucion()
-            self.txt_resultado.delete("1.0", tk.END)
-            self.txt_resultado.insert(tk.END, f"Solución encontrada:\n{solucion}")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al iniciar el juego: {e}")
+    def drag_with_mouse(self, mousex, mousey):
+        center_x = self.posn[0]
+        center_y = self.posn[1]
+        distance_mouse = math.sqrt((mousex - center_x)**2 + (mousey - center_y)**2)
+        print("distance_mouse: ", distance_mouse)
+        return distance_mouse < 40
 
-    def ayuda_ia(self):
-        if self.n_reinas is None:
-            messagebox.showinfo("Información", "Inicie el juego primero.")
-            return
-        estado_json = self.n_reinas.estado_a_json()
+    def mouse_touch_sprite(self, mousex, mousey):
+        return self.drag_with_mouse(mousex, mousey)
 
-        def callback(resultado):
-            self.txt_resultado.insert(tk.END, f"\nSugerencia IA: {resultado}")
+    def draw(self, surface):
+        surface.blit(self.image, self.posn)
 
-        hilo = IAHelperThread("NReinas", estado_json, callback)
-        hilo.start()
+def draw_board(n):
+    pygame.init()
+    colors = [(255, 255, 255), (0, 0, 0)]
+
+    surface_sz = 480
+    sq_sz = surface_sz // n
+    surface_sz = n * sq_sz
+
+    display_surface = pygame.display.set_mode((surface_sz, surface_sz))
+    pygame.display.set_caption('N-Reinas')
+    BASICFONT = pygame.font.SysFont('arial', BASICFONTSIZE)
+
+    peach_image = pygame.image.load('peach.png')
+    peach_image.convert()
+    peach_image = pygame.transform.rotozoom(peach_image, 0, 0.15)
+    peach_offset = (sq_sz - peach_image.get_width()) // 2
+
+    all_sprites = []
+    chess_board = [-1] * n
+    FPS = 30
+    fpsClock = pygame.time.Clock()
+    is_win = False
+    mousex, mousey = 0, 0
+
+    while True:
+        for row in range(n):
+            c_indx = row % 2
+            for col in range(n):
+                the_square = (col * sq_sz, row * sq_sz, sq_sz, sq_sz)
+                display_surface.fill(colors[c_indx], the_square)
+                c_indx = (c_indx + 1) % 2
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEMOTION:
+                mousex, mousey = event.pos
+            elif event.type == MOUSEBUTTONDOWN:
+                mousex, mousey = event.pos
+                col_index = mousex // sq_sz
+                row_index = mousey // sq_sz
+                for item in all_sprites:
+                    if item.mouse_touch_sprite(mousex, mousey):
+                        item.dragging = True
+                        chess_board[row_index] = -1
+                        break
+            elif event.type == MOUSEBUTTONUP:
+                mousex, mousey = event.pos
+                col_index = mousex // sq_sz
+                row_index = mousey // sq_sz
+
+                if chess_board[row_index] != -1 or (col_index in chess_board):
+                    print("conflict horizontal or vertical")
+                    print(chess_board)
+                else:
+                    chess_board[row_index] = col_index
+                    print(chess_board)
+                    if n_reinas.has_clashes_2(chess_board):
+                        print("conflict diagonal")
+                        chess_board[row_index] = -1
+                        print(chess_board)
+                    else:
+                        drag_existing = False
+                        for item in all_sprites:
+                            if item.dragging:
+                                drag_existing = True
+                                item.dragging = False
+                                item.posn = (col_index * sq_sz + peach_offset,
+                                             row_index * sq_sz + peach_offset)
+                                break
+                        if not drag_existing:
+                            new_queen = PeachSprite(peach_image,
+                                                    (col_index * sq_sz + peach_offset,
+                                                     row_index * sq_sz + peach_offset))
+                            all_sprites.append(new_queen)
+                        if -1 not in chess_board:
+                            is_win = True
+                            print("Has ganado!")
+
+        for sprite in all_sprites:
+            if sprite.dragging:
+                sprite.drag_with_mouse(mousex - peach_offset, mousey - peach_offset)
+            else:
+                sprite.update()
+            sprite.draw(display_surface)
+
+        if is_win:
+            display_surface.blit(pygame.image.load('Fondo.jpg'), (0, 0))
+
+        pygame.display.update()
+        fpsClock.tick(FPS)
+
+if __name__ == '__main__':
+    draw_board(8)
