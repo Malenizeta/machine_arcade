@@ -33,7 +33,7 @@ class PeachSprite:
 
 def draw_board(n):
     pygame.init()
-    colors = [(255, 255, 255), (0, 0, 0)]
+    colors = [(244, 153, 189), (255, 252, 201)]
 
     surface_sz = 480
     sq_sz = surface_sz // n
@@ -125,5 +125,44 @@ def draw_board(n):
         pygame.display.update()
         fpsClock.tick(FPS)
 
+def menu_inicio():
+    pygame.init()
+    width, height = 400, 200
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("Tamaño del tablero")
+    font = pygame.font.SysFont('arial', 36)
+    input_text = ''
+    input_active = True
+
+    while True:
+        screen.fill((200, 200, 200))
+        label = font.render("Introduce N (4 a 16):", True, (0, 0, 0))
+        screen.blit(label, (50, 30))
+
+        input_box = pygame.Rect(50, 80, 300, 50)
+        pygame.draw.rect(screen, (255, 255, 255), input_box)
+        pygame.draw.rect(screen, (0, 0, 0), input_box, 2)
+
+        text_surface = font.render(input_text, True, (0, 0, 0))
+        screen.blit(text_surface, (input_box.x + 10, input_box.y + 5))
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == KEYDOWN and input_active:
+                if event.key == K_RETURN:
+                    if input_text.isdigit():
+                        n = int(input_text)
+                        if 4 <= n <= 16:
+                            return n 
+                elif event.key == K_BACKSPACE:
+                    input_text = input_text[:-1]
+                elif event.unicode.isdigit() and len(input_text) < 2:
+                    input_text += event.unicode
+
+        pygame.display.flip()
+        
 if __name__ == '__main__':
-    draw_board(8)
+    n = menu_inicio()
+    draw_board(n)
