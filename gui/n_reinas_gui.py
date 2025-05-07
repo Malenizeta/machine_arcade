@@ -22,11 +22,8 @@ class PeachSprite:
         return
 
     def drag_with_mouse(self, mousex, mousey):
-        center_x = self.posn[0]
-        center_y = self.posn[1]
-        distance_mouse = math.sqrt((mousex - center_x)**2 + (mousey - center_y)**2)
-        print("distance_mouse: ", distance_mouse)
-        return distance_mouse < 40
+        sprite_rect = self.image.get_rect(topleft=self.posn)
+        return sprite_rect.collidepoint(mousex, mousey)
 
     def mouse_touch_sprite(self, mousex, mousey):
         return self.drag_with_mouse(mousex, mousey)
