@@ -1,47 +1,57 @@
-# gui/caballo_gui.py
+import pygame, sys, os
 
-import tkinter as tk
-from tkinter import messagebox
-from games.caballo_tour import CaballoTour
-from ia_client import IAHelperThread
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from games import caballo_tour as ct
 
-class CaballoGUI(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.pack()
-        self.caballo = None
-        self.create_widgets()
+def manual_knights_tour(n):
+    pygame.init()
+    cell_size = 60
+    screen = pygame.display.set_mode((n * cell_size, n * cell_size))
+    pygame.display.set_caption("Recorrido del Caballo")
+    font = pygame.font.SysFont(None, 24)
 
-    def create_widgets(self):
-        self.label = tk.Label(self, text="Tablero de Ajedrez (Recorrido del Caballo)")
-        self.label.pack(pady=5)
+    board = ct.create_board(n)
+    move_num = 0
+    current_pos = None
 
-        self.btn_iniciar = tk.Button(self, text="Iniciar Recorrido", command=self.iniciar_juego)
-        self.btn_iniciar.pack(pady=5)
+    def draw_board():
+        for row in range(n):
+            for col in range(n):
+                rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                color = (255, 255, 255) if (row + col) % 2 == 0 else (0, 0, 0)
+                pygame.draw.rect(screen, color, rect)
+                pygame.draw.rect(screen, (100, 100, 100), rect, 1)
+                if board[row][col] != -1:
+                    text = font.render(str(board[row][col]), True, (255, 0, 0))
+                    screen.blit(text, (col * cell_size + 5, row * cell_size + 5))
+        pygame.display.flip()
 
-        self.btn_ayuda = tk.Button(self, text="Ayuda IA", command=self.ayuda_ia)
-        self.btn_ayuda.pack(pady=5)
+    running = True
+    while running:
+        draw_board()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = pygame.mouse.get_pos()
+                col = mx // cell_size
+                row = my // cell_size
+                if current_pos is None:
+                    current_pos = (row, col)
+                    board[row][col] = move_num
+                    move_num += 1
+                else:
+                    if board[row][col] == -1 and ct.is_valid_knight_move(current_pos[0], current_pos[1], row, col):
+                        current_pos = (row, col)
+                        board[row][col] = move_num
+                        move_num += 1
+                        if move_num == n * n:
+                            print("¡Recorrido completo!")
+                    else:
+                        print("Movimiento inválido")
 
-        self.txt_resultado = tk.Text(self, height=10, width=50)
-        self.txt_resultado.pack(pady=5)
+    pygame.quit()
+    sys.exit()
 
-    def iniciar_juego(self):
-        self.caballo = CaballoTour(tamaño=8)
-        tour = self.caballo.get_tour((0, 0))
-        self.txt_resultado.delete("1.0", tk.END)
-        if tour:
-            self.txt_resultado.insert(tk.END, f"Recorrido completado:\n{tour}")
-        else:
-            self.txt_resultado.insert(tk.END, "No se encontró recorrido")
-
-    def ayuda_ia(self):
-        if self.caballo is None:
-            tk.messagebox.showinfo("Información", "Inicie el juego primero.")
-            return
-        estado_json = self.caballo.estado_a_json()
-
-        def callback(resultado):
-            self.txt_resultado.insert(tk.END, f"\nSugerencia IA: {resultado}")
-
-        hilo = IAHelperThread("CaballoTour", estado_json, callback)
-        hilo.start()
+if __name__ == '__main__':
+    manual_knights_tour(8)
