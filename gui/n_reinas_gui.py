@@ -46,7 +46,7 @@ def draw_board(n):
     pygame.display.set_caption('N-Reinas')
     BASICFONT = pygame.font.SysFont('arial', BASICFONTSIZE)
 
-    peach_image = pygame.image.load('peach.png')
+    peach_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "../assets/images/Peach.png"))
     peach_image.convert()
     peach_image = pygame.transform.rotozoom(peach_image, 0, 0.15)
     peach_offset = (sq_sz - peach_image.get_width()) // 2
@@ -116,13 +116,14 @@ def draw_board(n):
 
         for sprite in all_sprites:
             if sprite.dragging:
-                sprite.drag_with_mouse(mousex - peach_offset, mousey - peach_offset)
+                sprite.posn = (mousex - peach_image.get_width() // 2,
+                       mousey - peach_image.get_height() // 2)
             else:
                 sprite.update()
             sprite.draw(display_surface)
 
         if is_win:
-            display_surface.blit(pygame.image.load('Fondo.jpg'), (0, 0))
+            display_surface.blit(pygame.image.load(os.path.dirname(__file__), "../assets/images/Fin.jpg"), (0, 0))
 
         pygame.display.update()
         fpsClock.tick(FPS)
