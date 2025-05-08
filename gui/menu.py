@@ -1,14 +1,17 @@
 import pygame, sys, os
 
-# Definir constantes para colores y tamaños de pantalla
-SCREEN_WIDTH = 400
-SCREEN_HEIGHT = 300
+
+SCREEN_WIDTH = 700
+SCREEN_HEIGHT = 700
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+
+FONT_PATH = os.path.join(os.path.dirname(__file__), "../assets/fonts/mario.ttf")
+
 pygame.init()
 
-# Funciones que inician los juegos
+
 def run_torres_hanoi():
     print("Iniciando Torres de Hanoi...")
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -28,21 +31,21 @@ def run_caballo_tour():
     from gui import caballo_gui
     caballo_gui.caballo_tour(8)
 
-# Función que dibuja el menú con los botones
+
 def draw_menu(screen):
-    font = pygame.font.SysFont(None, 40)
-    title = font.render("Menú de Juegos", True, BLACK)
-    screen.fill(WHITE)
-    screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 20))
+   
+    background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "../assets/images/menu.jpg"))
+    background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    
+    screen.blit(background_image, (0, 0))
 
-    # Botones para los juegos
-    button_torres = pygame.Rect(100, 100, 200, 50)
-    button_reinas = pygame.Rect(100, 160, 200, 50)
-    button_caballo = pygame.Rect(100, 220, 200, 50)
+  
+    font = pygame.font.Font(FONT_PATH, 40)  
 
-    pygame.draw.rect(screen, BLACK, button_torres)
-    pygame.draw.rect(screen, BLACK, button_reinas)
-    pygame.draw.rect(screen, BLACK, button_caballo)
+    
+    button_torres = pygame.Rect(150, 350, 300, 50)  
+    button_reinas = pygame.Rect(150, 420, 300, 50) 
+    button_caballo = pygame.Rect(150, 490, 300, 50)  
 
     button_text_torres = font.render("Torres de Hanoi", True, WHITE)
     button_text_reinas = font.render("N-Reinas", True, WHITE)
@@ -72,11 +75,11 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
 
                 if button_torres.collidepoint(mouse_pos):
-                    run_torres_hanoi()  # Llamada a la función de Torres de Hanoi
+                    run_torres_hanoi() 
                 elif button_reinas.collidepoint(mouse_pos):
-                    run_n_reinas()  # Llamada a la función de N-Reinas
+                    run_n_reinas()  
                 elif button_caballo.collidepoint(mouse_pos):
-                    run_caballo_tour()  # Llamada a la función de Caballo Tour
+                    run_caballo_tour()  
 
     pygame.quit()
     sys.exit()
