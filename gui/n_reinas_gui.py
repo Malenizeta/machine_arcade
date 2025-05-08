@@ -1,12 +1,13 @@
 import pygame, sys, random, os
+import datetime
 from pygame.locals import *
 import math
-import datetime
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from client import enviar_resultado
 from games import n_reinas
-from client import enviar_resultado 
+
 
 BASICFONTSIZE = 20
 
@@ -114,12 +115,13 @@ def draw_board(n):
                         if -1 not in chess_board:
                             is_win = True
                             print("Has ganado!")
-                            enviar_resultado("N-Reinas", {
+                            resultado = {
                                 "board_size": n,
                                 "result": "won",
                                 "moves": movimientos,
-                                "timestamp": datetime.datetime.now().isoformat()
-                            })
+                                #"timestamp": datetime.datetime.now().isoformat()
+                            }
+                            enviar_resultado("N Reinas", resultado)
 
         for sprite in all_sprites:
             if sprite.dragging:
@@ -129,10 +131,8 @@ def draw_board(n):
                 sprite.update()
             sprite.draw(display_surface)
 
-        if is_win:
-            display_surface.blit(pygame.image.load(os.path.dirname(__file__), "../assets/images/Fin.jpg"), (0, 0))
-            import datetime
-            from client import enviar_resultado
+        # if is_win:
+        #     display_surface.blit(pygame.image.load(os.path.dirname(__file__), "../assets/images/Fin.jpg"), (0, 0))
 
         pygame.display.update()
         fpsClock.tick(FPS)

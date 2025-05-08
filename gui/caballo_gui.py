@@ -62,7 +62,7 @@ def caballo_tour(n):
                                     "board_size": n,
                                     "result": "won",
                                     "moves": move_num,
-                                    "timestamp": datetime.datetime.now().isoformat()
+                                    #"timestamp": datetime.datetime.now().isoformat()
                                 })   
                     else:
                         print("Movimiento inválido")
