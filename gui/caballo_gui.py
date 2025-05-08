@@ -1,9 +1,11 @@
 import pygame, sys, os
+import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from games import caballo_tour as ct
+from client import enviar_resultado
 
-def manual_knights_tour(n):
+def caballo_tour(n):
     pygame.init()
     cell_size = 60
     yoshi_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "../assets/images/yoshi.png"))
@@ -17,6 +19,7 @@ def manual_knights_tour(n):
     board = ct.create_board(n)
     move_num = 0
     current_pos = None
+    recorrido_completo = False
 
     def draw_board():
         for row in range(n):
@@ -55,6 +58,12 @@ def manual_knights_tour(n):
                         move_num += 1
                         if move_num == n * n:
                             print("¡Recorrido completo!")
+                            enviar_resultado("Caballo Tour", {
+                                    "board_size": n,
+                                    "result": "won",
+                                    "moves": move_num,
+                                    "timestamp": datetime.datetime.now().isoformat()
+                                })   
                     else:
                         print("Movimiento inválido")
 
@@ -62,4 +71,4 @@ def manual_knights_tour(n):
     sys.exit()
 
 if __name__ == '__main__':
-    manual_knights_tour(8)
+    caballo_tour(8)

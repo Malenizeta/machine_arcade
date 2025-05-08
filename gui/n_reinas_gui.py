@@ -1,11 +1,12 @@
 import pygame, sys, random, os
 from pygame.locals import *
 import math
-
+import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from games import n_reinas
+from client import enviar_resultado 
 
 BASICFONTSIZE = 20
 
@@ -34,6 +35,7 @@ class PeachSprite:
 def draw_board(n):
     pygame.init()
     colors = [(244, 153, 189), (255, 252, 201)]
+    
 
     surface_sz = 480
     sq_sz = surface_sz // n
@@ -54,6 +56,7 @@ def draw_board(n):
     fpsClock = pygame.time.Clock()
     is_win = False
     mousex, mousey = 0, 0
+    movimientos = 0
 
     while True:
         for row in range(n):
@@ -94,6 +97,7 @@ def draw_board(n):
                         chess_board[row_index] = -1
                         print(chess_board)
                     else:
+                        movimientos += 1
                         drag_existing = False
                         for item in all_sprites:
                             if item.dragging:
@@ -110,6 +114,12 @@ def draw_board(n):
                         if -1 not in chess_board:
                             is_win = True
                             print("Has ganado!")
+                            enviar_resultado("N-Reinas", {
+                                "board_size": n,
+                                "result": "won",
+                                "moves": movimientos,
+                                "timestamp": datetime.datetime.now().isoformat()
+                            })
 
         for sprite in all_sprites:
             if sprite.dragging:
@@ -121,6 +131,8 @@ def draw_board(n):
 
         if is_win:
             display_surface.blit(pygame.image.load(os.path.dirname(__file__), "../assets/images/Fin.jpg"), (0, 0))
+            import datetime
+            from client import enviar_resultado
 
         pygame.display.update()
         fpsClock.tick(FPS)

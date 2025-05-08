@@ -1,10 +1,11 @@
-import pygame
+import pygame 
 import os
 
 # Color Constants class
 class ColorConstants():
     RED = (255, 0, 0)
     BLACK = (0, 0, 0)
+    BLUE = (0,0,100)
     GREEN = (0, 255, 0)
     WHITE = (255, 255, 255)
     BACKGROUND = (240, 248, 255)
@@ -41,10 +42,6 @@ class Disc(Block):
         self.id = id
 
 
-
-
-
-
 # Buttons class
 class Button(Block):
     def __init__(self, text, text_color, text_size, text_font, color, width, height):
@@ -71,7 +68,7 @@ class MainMenu(ColorConstants):
         self.sprites_list = pygame.sprite.Group()
 
         # Etiqueta para el cuadro de texto
-        self.label = Button("Enter the number of discs:", self.BLACK, 30, 'Calibri', self.WHITE, 500, 30)
+        self.label = Button("Numero de discos:", self.BLACK, 30, 'Calibri', self.WHITE, 500, 30)
         self.label.rect.x = self.SCREEN_WIDTH / 4
         self.label.rect.y = self.SCREEN_HEIGHT / 2 - 80
         self.label.render_text()
@@ -183,13 +180,13 @@ class Game(ColorConstants):
 
         scaled_brick = pygame.transform.smoothscale(base_image, (int(brick_width), brick_height))
 
-        # Y desde donde se empiezan a apilar (desde abajo hacia arriba)
+       
         y_offset = self.BOARD_Y
 
         for i in range(self.n_discs):
             repeat_count = self.n_discs - i
             disc_width = int(brick_width * repeat_count)
-            disc_height = brick_height  # Puedes variar esto si quieres discos de diferente alto
+            disc_height = brick_height 
 
             # Crear superficie del disco
             disc_image = pygame.Surface((disc_width, disc_height), pygame.SRCALPHA)

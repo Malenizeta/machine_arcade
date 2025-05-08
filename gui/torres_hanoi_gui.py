@@ -1,8 +1,9 @@
-# # gui/torres_hanoi_gui.py
 import pygame
 import sys
-import games.torres_hanoi as models
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from games import torres_hanoi as models
+from client import enviar_resultado
 
 # Define screen constants
 SCREEN_WIDTH = 900
@@ -10,8 +11,8 @@ SCREEN_HEIGHT = 700
 # Color constants object
 color = models.ColorConstants()
 
-FONT_PATH = os.path.join(os.path.dirname(__file__), "../assets/fonts/arcade.ttf")  # Cambia esta ruta según tu estructura
-FONT_SIZE = 30
+FONT_PATH = os.path.join(os.path.dirname(__file__), "../assets/fonts/mario.ttf")  # Cambia esta ruta según tu estructura
+FONT_SIZE = 25
 TITLE_FONT_SIZE = 50
 
 # Init pygame
@@ -24,7 +25,7 @@ background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREE
 # Define the screen (and it's properties)
 size = [SCREEN_WIDTH, SCREEN_HEIGHT]
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption("MG's Tower of Hanoi for Python")
+pygame.display.set_caption("Torres de Hanoi")
 # Create main menu object
 menu = models.MainMenu(SCREEN_WIDTH,SCREEN_HEIGHT)
 # Create game object
@@ -135,10 +136,10 @@ while not done:
         menu.draw(screen)
     else:
         # Dibujar el juego
-        player_moves = font.render("Player moves: " + str(moves_counter), True, color.BLACK)
-        min_moves = font.render("Minimum of required movements: " + str(game.min_moves), True, color.BLACK)
-        screen.blit(player_moves, [20, 80])
-        screen.blit(min_moves, [20, 110])
+        player_moves = font.render("Movimientos: " + str(moves_counter), True, color.BLACK)
+        min_moves = font.render("Movimientos minimos: " + str(game.min_moves), True, color.BLACK)
+        screen.blit(player_moves, [20, 20])
+        screen.blit(min_moves, [20, 50])
 
         if game_over:
             menu.sprites_list.draw(screen)
@@ -201,6 +202,13 @@ while not done:
                             game_over = True
                             menu.sprites_list.add([menu.btn_play_again, menu.btn_quit, menu.btn_return])
                             menu.sprites_list.remove([menu.label])
+                            resultado = {
+                            "num_discs": game.n_discs,
+                            "moves": moves_counter,
+                            "min_moves": game.min_moves,
+                            "perfect": moves_counter == game.min_moves
+                            }
+                            enviar_resultado("Torres de Hanoi", resultado)
                     if turn_back:
                         game.discs[disc_index].rect.x = last_pos[0]
                         game.discs[disc_index].rect.y = last_pos[1]
