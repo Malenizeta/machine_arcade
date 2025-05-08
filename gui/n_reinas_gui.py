@@ -3,11 +3,16 @@ import datetime
 from pygame.locals import *
 import math
 
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 700
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from client import enviar_resultado
 from games import n_reinas
-
+FONT_PATH = os.path.join(os.path.dirname(__file__), "../assets/fonts/mario.ttf")
+BACKGROUND_IMAGE_PATH = os.path.join(os.path.dirname(__file__), "../assets/images/Fondo.jpg")  # Cambia esta ruta según tu estructura
+background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
+background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 BASICFONTSIZE = 20
 
@@ -139,15 +144,15 @@ def draw_board(n):
 
 def menu_inicio():
     pygame.init()
-    width, height = 400, 200
+    width, height = 450, 350
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Tamaño del tablero")
-    font = pygame.font.SysFont('arial', 36)
+    font = pygame.font.Font(FONT_PATH, 36)
     input_text = ''
     input_active = True
 
     while True:
-        screen.fill((200, 200, 200))
+        screen.blit(background_image, (0, 0))
         label = font.render("Introduce N (4 a 16):", True, (0, 0, 0))
         screen.blit(label, (50, 30))
 
