@@ -143,19 +143,21 @@ while not done:
 
         if game_over:
             menu.sprites_list.draw(screen)
+            screen.blit(background_image, (0, 0))
             if len(game.positions[2].discs) == game.n_discs:
                 if moves_counter == game.min_moves:
                     game_over_title = font.render(
-                        "Congratulations! You just finished the game with the minimum movements! :)",
+                        "Enhorabuena! " \
+                        "Has completado el juego con el minimo de movimientos",
                         True,
-                        color.BLACK,
+                        color.WHITE,
                     )
-                    screen.blit(game_over_title, [((SCREEN_WIDTH / 2) - (game_over_title.get_width() / 2)), SCREEN_HEIGHT / 2])
+                    screen.blit(game_over_title, [((SCREEN_WIDTH / 2) - (game_over_title.get_width() / 2)), SCREEN_HEIGHT / 2 - 40])
                 else:
                     game_over_title = font.render(
-                        "You just finished the game, now try again with the minimum movements! ;)",
+                        "Has completado el juego, pero no con el mínimo de movimientos",
                         True,
-                        color.BLACK,
+                        color.WHITE,
                     )
                     screen.blit(game_over_title, [((SCREEN_WIDTH / 2) - (game_over_title.get_width() / 2)), SCREEN_HEIGHT / 2])
         else:
@@ -201,7 +203,6 @@ while not done:
                         if len(game.positions[2].discs) == game.n_discs:
                             game_over = True
                             menu.sprites_list.add([menu.btn_play_again, menu.btn_quit, menu.btn_return])
-                            menu.sprites_list.remove([menu.label])
                             resultado = {
                             "num_discs": game.n_discs,
                             "moves": moves_counter,

@@ -1,6 +1,8 @@
 import pygame 
 import os
 
+FONT_PATH = os.path.join(os.path.dirname(__file__), "../assets/fonts/mario.ttf")  
+
 # Color Constants class
 class ColorConstants():
     RED = (255, 0, 0)
@@ -10,6 +12,7 @@ class ColorConstants():
     WHITE = (255, 255, 255)
     BACKGROUND = (240, 248, 255)
     BOARD_COLOR = (0, 0, 0)
+    TRANSPARENTE = (0, 0, 0, 0)
 
 # Generic Block class
 class Block(pygame.sprite.Sprite):
@@ -48,7 +51,7 @@ class Button(Block):
         super().__init__(color, width, height)
         self.text = text
         self.text_color = text_color
-        self.font = pygame.font.SysFont(text_font, text_size, False, False)
+        self.font = pygame.font.Font(text_font, text_size)
         self.text_render = self.font.render(text, 1, text_color)
         self.value = None
 
@@ -67,29 +70,29 @@ class MainMenu(ColorConstants):
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
         self.sprites_list = pygame.sprite.Group()
 
-        # Etiqueta para el cuadro de texto
-        self.label = Button("Numero de discos:", self.BLACK, 30, 'Calibri', self.WHITE, 500, 30)
-        self.label.rect.x = self.SCREEN_WIDTH / 4
-        self.label.rect.y = self.SCREEN_HEIGHT / 2 - 80
-        self.label.render_text()
-        self.sprites_list.add(self.label)
+        
+        self.font_label = pygame.font.Font(FONT_PATH, 30)
+        self.label_surface = self.font_label.render("Numero de discos:", True, self.WHITE)
+        label_width = self.label_surface.get_width()
+        self.label_pos = ((self.SCREEN_WIDTH - label_width) / 2, self.SCREEN_HEIGHT / 2 - 80)
 
         # Cuadro de texto para ingresar el número de discos
-        self.input_box = pygame.Rect(self.SCREEN_WIDTH / 3, self.SCREEN_HEIGHT / 2 - 40, 140, 32)
+        self.input_box = pygame.Rect(self.SCREEN_WIDTH / 3, self.SCREEN_HEIGHT / 2 - 40, 250, 32)
         self.input_text = ""
         self.input_active = False
 
+
         # Botón para iniciar el juego
-        self.btn_start = Button("Start Game", self.BLACK, 30, 'Calibri', self.GREEN, 150, 30)
+        self.btn_start = Button("Jugar", self.WHITE, 30, FONT_PATH, self.BLACK, 150, 30)
         self.btn_start.rect.x = self.SCREEN_WIDTH / 2 - self.btn_start.image.get_width() / 2
         self.btn_start.rect.y = self.SCREEN_HEIGHT / 2 + 20
         self.btn_start.render_text()
         self.sprites_list.add(self.btn_start)
 
         # Game over buttons
-        self.btn_play_again = Button("Play again", self.BLACK, 30, 'Calibri', self.GREEN, 130, 30)
-        self.btn_return = Button("Return to menu", self.BLACK, 30, 'Calibri', self.BACKGROUND, 150, 30)
-        self.btn_quit = Button("Quit", self.BLACK, 30, 'Calibri', self.RED, 70, 30)
+        self.btn_play_again = Button("Play again", self.BLACK, 30, FONT_PATH, self.GREEN, 130, 30)
+        self.btn_return = Button("Return to menu", self.BLACK, 30, FONT_PATH, self.BACKGROUND, 150, 30)
+        self.btn_quit = Button("Quit", self.BLACK, 30, FONT_PATH, self.RED, 70, 30)
         self.btn_play_again.rect.x = self.SCREEN_WIDTH / 2 - (self.btn_return.image.get_width() * 2)
         self.btn_play_again.rect.y = self.SCREEN_HEIGHT / 2 - 40
         self.btn_play_again.render_text()
@@ -124,6 +127,7 @@ class MainMenu(ColorConstants):
     def draw(self, screen):
         # Dibujar el cuadro de texto
         pygame.draw.rect(screen, self.WHITE, self.input_box, 2 if self.input_active else 1)
+        screen.blit(self.label_surface, self.label_pos)
         font = pygame.font.Font(None, 30)
         text_surface = font.render(self.input_text, True, self.BLACK)
         screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 5))
