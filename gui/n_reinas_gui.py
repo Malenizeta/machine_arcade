@@ -2,6 +2,10 @@ import pygame, sys, random, os
 import datetime
 from pygame.locals import *
 import math
+import threading
+import customtkinter as ctk
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from ia_client import IAHelperThread
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
@@ -15,6 +19,39 @@ background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
 background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 BASICFONTSIZE = 20
+
+def ventana_ayuda_ia(sugerencia: str):
+    ctk.set_appearance_mode("light")  
+    ctk.set_default_color_theme("green")  
+
+    root = ctk.CTk()
+    ruta_icono = os.path.join(os.path.dirname(__file__), "../assets/images/Icono.ico")
+    root.iconbitmap(ruta_icono)
+    root.title("Ayuda IA - N-Reinas")
+    root.geometry("450x280")
+    root.resizable(False, False)
+
+    txtbox = ctk.CTkTextbox(root, width=420, height=180, font=("Segoe UI", 11), wrap="word")
+    txtbox.pack(padx=10, pady=(15, 10))
+    txtbox.insert("0.0", sugerencia)
+    txtbox.configure(state="disabled")
+
+    btn_frame = ctk.CTkFrame(root, fg_color="transparent")
+    btn_frame.pack(pady=(0, 15))
+
+    btn_cerrar = ctk.CTkButton(
+        btn_frame,
+        text="Cerrar",
+        fg_color="#F499BD",
+        hover_color="#CF82A1",
+        text_color="white",
+        font=("Segoe UI", 11, "bold"),
+        corner_radius=8,
+        command=root.destroy
+    )
+    btn_cerrar.pack(side="left", padx=10)
+
+    root.mainloop()
 
 class PeachSprite:
 
@@ -64,13 +101,22 @@ def draw_board(n):
     mousex, mousey = 0, 0
     movimientos = 0
 
+    ia_button_rect = pygame.Rect(10, surface_sz + 10, 120, 30)
+    display_surface = pygame.display.set_mode((surface_sz, surface_sz + 50))
+
     while True:
+        display_surface.fill((207, 130, 161))
         for row in range(n):
             c_indx = row % 2
             for col in range(n):
                 the_square = (col * sq_sz, row * sq_sz, sq_sz, sq_sz)
                 display_surface.fill(colors[c_indx], the_square)
                 c_indx = (c_indx + 1) % 2
+                
+        # Botón de Ayuda IA
+        pygame.draw.rect(display_surface, (244, 153, 189), ia_button_rect)
+        ia_text = BASICFONT.render("Ayuda IA", True, (255, 255, 255))
+        display_surface.blit(ia_text, (ia_button_rect.x + 10, ia_button_rect.y + 5))
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -80,6 +126,31 @@ def draw_board(n):
                 mousex, mousey = event.pos
             elif event.type == MOUSEBUTTONDOWN:
                 mousex, mousey = event.pos
+
+                # Si clic en botón IA
+                if ia_button_rect.collidepoint(mousex, mousey):
+                    estado_texto = f"Estado actual del tablero ({n}x{n}):\n"
+                    for i, col in enumerate(chess_board):
+                        fila = ["."] * n
+                        if col != -1:
+                            fila[col] = "Q"
+                        estado_texto += " ".join(fila) + "\n"
+
+                    def mostrar_sugerencia(resultado):
+                        threading.Thread(target=ventana_ayuda_ia, args=(resultado,), daemon=True).start()
+
+                    hilo = IAHelperThread(
+                        "NReinas",
+                        estado_texto,
+                        mostrar_sugerencia
+                    )
+                    hilo.start()
+                    continue
+
+                # Clic fuera del tablero
+                if mousey >= surface_sz:
+                    continue  # ignorar clic fuera del área de tablero
+
                 col_index = mousex // sq_sz
                 row_index = mousey // sq_sz
                 for item in all_sprites:
@@ -91,6 +162,10 @@ def draw_board(n):
                 mousex, mousey = event.pos
                 col_index = mousex // sq_sz
                 row_index = mousey // sq_sz
+
+                # Verificar que estamos dentro del tablero
+                if row_index >= n or col_index >= n:
+                    continue  # Ignorar clic fuera del área válida
 
                 if chess_board[row_index] != -1 or (col_index in chess_board):
                     print("conflict horizontal or vertical")
