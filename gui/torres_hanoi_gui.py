@@ -1,9 +1,12 @@
 import pygame
 import sys
 import os
+import threading
+import customtkinter as ctk
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from games import torres_hanoi as models
 from client import enviar_resultado
+from ia_client import IAHelperThread
 
 # Define screen constants
 SCREEN_WIDTH = 900
@@ -42,8 +45,43 @@ last_pos = [0,0]
 font = pygame.font.Font(FONT_PATH, FONT_SIZE)
 # Moves counter
 moves_counter = 0
+ia_button_rect = pygame.Rect(SCREEN_WIDTH - 140, 20, 120, 40)
 # Manage how fast the screen updates
 clock = pygame.time.Clock()
+
+def ventana_ayuda_ia(sugerencia: str):
+    ctk.set_appearance_mode("light")
+    ctk.set_default_color_theme("green")
+
+    root = ctk.CTk()
+    ruta_icono = os.path.join(os.path.dirname(__file__), "../assets/images/Icono.ico")
+    root.iconbitmap(ruta_icono)
+    root.title("Ayuda IA - Torres de Hanoi")
+    root.geometry("450x280")
+    root.resizable(False, False)
+
+    txtbox = ctk.CTkTextbox(root, width=420, height=180, font=("Segoe UI", 11), wrap="word")
+    txtbox.pack(padx=10, pady=(15, 10))
+    txtbox.insert("0.0", sugerencia)
+    txtbox.configure(state="disabled")
+
+    btn_frame = ctk.CTkFrame(root, fg_color="transparent")
+    btn_frame.pack(pady=(0, 15))
+
+    btn_cerrar = ctk.CTkButton(
+        btn_frame,
+        text="Cerrar",
+        fg_color="#4682B4",
+        hover_color="#1E3C78",
+        text_color="white",
+        font=("Segoe UI", 11, "bold"),
+        corner_radius=8,
+        command=root.destroy
+    )
+    btn_cerrar.pack(side="left", padx=10)
+
+    root.mainloop()
+
 # -------- Main Game Loop -----------
 while not done:
     # --- Main event loop
@@ -85,6 +123,22 @@ while not done:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 drag = True
                 drop = False
+                if ia_button_rect.collidepoint(event.pos):
+                    estado_texto = "Estado actual de las torres:\n"
+                    for i, torre in enumerate(game.positions):
+                        discos = [f"D{d.id}" for d in torre.discs]
+                        estado_texto += f"Torre {i+1}: {' '.join(discos) if discos else '(vacía)'}\n"
+
+                    def mostrar_sugerencia(resultado):
+                        threading.Thread(target=ventana_ayuda_ia, args=(resultado,), daemon=True).start()
+
+                    hilo = IAHelperThread(
+                        "TorresHanoi",
+                        estado_texto,
+                        mostrar_sugerencia
+                    )
+                    hilo.start()
+                    continue
                 if not game_over:
                     for i in range(0, game.n_discs):
                         if game.discs[i].is_clicked():
@@ -102,6 +156,7 @@ while not done:
                         game.sprites_list.remove(game.discs)
                         game.positions[2].discs = []
                         moves_counter = 0
+                        ia_button_rect = pygame.Rect(SCREEN_WIDTH - 140, 20, 120, 40)
                         game.discs = []
                         game.draw_discs()
                         game_over = False
@@ -140,6 +195,10 @@ while not done:
         min_moves = font.render("Movimientos minimos: " + str(game.min_moves), True, color.BLACK)
         screen.blit(player_moves, [20, 20])
         screen.blit(min_moves, [20, 50])
+        pygame.draw.rect(screen, (30, 60, 120), ia_button_rect)  # Rosa claro
+        ia_font = pygame.font.Font(FONT_PATH, 20)
+        ia_text = ia_font.render("Ayuda IA", True, (255, 255, 255))
+        screen.blit(ia_text, (ia_button_rect.x + 10, ia_button_rect.y + 8))
 
         if game_over:
             menu.sprites_list.draw(screen)
