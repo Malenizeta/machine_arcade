@@ -43,21 +43,81 @@ def draw_menu(screen):
     font = pygame.font.Font(FONT_PATH, 40)  
 
     
-    button_torres = pygame.Rect(150, 350, 300, 50)  
-    button_reinas = pygame.Rect(150, 420, 300, 50) 
-    button_caballo = pygame.Rect(150, 490, 300, 50)  
+    button_torres = pygame.Rect(150, 310, 300, 50)  
+    button_reinas = pygame.Rect(150, 380, 300, 50) 
+    button_caballo = pygame.Rect(150, 450, 300, 50)
+    button_chatbot = pygame.Rect(150, 520, 300, 50) 
 
     button_text_torres = font.render("Torres de Hanoi", True, WHITE)
     button_text_reinas = font.render("N-Reinas", True, WHITE)
     button_text_caballo = font.render("Caballo Tour", True, WHITE)
+    button_text_chatbot = font.render("Chatbot IA", True, WHITE)
+
 
     screen.blit(button_text_torres, (button_torres.x + 10, button_torres.y + 10))
     screen.blit(button_text_reinas, (button_reinas.x + 10, button_reinas.y + 10))
     screen.blit(button_text_caballo, (button_caballo.x + 10, button_caballo.y + 10))
+    screen.blit(button_text_chatbot, (button_chatbot.x + 10, button_chatbot.y + 10))
+    
 
     pygame.display.flip()
 
-    return button_torres, button_reinas, button_caballo
+    return button_torres, button_reinas, button_caballo, button_chatbot
+
+def abrir_chatbot(screen):
+    from ia_client import consultar_chatbot
+    font = pygame.font.Font(None, 32)
+    input_box = pygame.Rect(50, 600, 600, 32)
+    color_inactive = pygame.Color('lightskyblue3')
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    text = ''
+    respuesta = ''
+    clock = pygame.time.Clock()
+
+    while True:
+        screen.fill((0, 0, 0))
+        pygame.draw.rect(screen, (30, 30, 30), (20, 20, 660, 550))  # área de diálogo
+
+        question_text = font.render('Pregunta al Chatbot IA:', True, WHITE)
+        screen.blit(question_text, (50, 560))
+
+        # Mostrar respuesta
+        wrapped = respuesta.split('\n')
+        for i, line in enumerate(wrapped):
+            line_surface = font.render(line, True, WHITE)
+            screen.blit(line_surface, (60, 40 + i * 25))
+
+        # Entrada de texto
+        txt_surface = font.render(text, True, color)
+        width = max(600, txt_surface.get_width()+10)
+        input_box.w = width
+        screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+        pygame.draw.rect(screen, color, input_box, 2)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return  # Volver al menú
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        respuesta = consultar_chatbot(text)
+                        text = ''
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+
 
 def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -66,7 +126,7 @@ def main():
     # Bucle del menú
     running = True
     while running:
-        button_torres, button_reinas, button_caballo = draw_menu(screen)
+        button_torres, button_reinas, button_caballo, button_chatbot = draw_menu(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -79,7 +139,9 @@ def main():
                 elif button_reinas.collidepoint(mouse_pos):
                     run_n_reinas()  
                 elif button_caballo.collidepoint(mouse_pos):
-                    run_caballo_tour()  
+                    run_caballo_tour() 
+                elif button_chatbot.collidepoint(mouse_pos):
+                    abrir_chatbot(screen)
 
     pygame.quit()
     sys.exit()
