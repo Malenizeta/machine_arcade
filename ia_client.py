@@ -1,40 +1,85 @@
 # ia_client.py
 
 import requests
-import json
 import threading
+import json
 
-API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
-API_KEY = "TU_API_KEY_AQUI"  # Reemplaza con tu API key
-HEADERS = {"Authorization": f"Bearer {API_KEY}"}
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
+API_KEY = "miapikey"  # Reemplaza esto con tu API key real de Hugging Face
 
-def solicitar_sugerencia(juego, estado_json):
+HEADERS = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+def solicitar_sugerencia(juego, estado_texto):
+    prompt = (
+        f"Estoy jugando a '{juego}'.\n"
+        f"Este es el estado actual del juego:\n{estado_texto}\n\n"
+        "¿Cuál sería una buena recomendación o siguiente movimiento?"
+    )
+
     payload = {
-        "juego": juego,
-        "estado": json.loads(estado_json)
+        "inputs": prompt,
+        "parameters": {
+            "temperature": 0.7,
+            "max_new_tokens": 200,
+            "do_sample": True,
+            "top_p": 0.9
+        }
     }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.text
 
-def consultar_chatbot(pregunta):
-    payload = {"pregunta": pregunta}
     response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.text
+
+    if response.status_code == 200:
+        result = response.json()
+        return result[0]["generated_text"]
+    else:
+        return f"Error {response.status_code}: {response.text}"
+    
+def consultar_chatbot(pregunta):
+    prompt = (
+        f"Soy un estudiante y tengo una duda sobre resolución de problemas con lógica.\n"
+        f"Pregunta: {pregunta}\n"
+        f"Responde de forma clara y educativa:"
+    )
+
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "temperature": 0.6,
+            "max_new_tokens": 300,
+            "do_sample": True,
+            "top_p": 0.9
+        }
+    }
+
+    response = requests.post(API_URL, headers=HEADERS, json=payload)
+
+    if response.status_code == 200:
+        result = response.json()
+        full_text = result[0]["generated_text"]
+
+        # Elimina todo lo anterior a la última línea del prompt (lo que tú enviaste)
+        respuesta_limpia = full_text.split("Responde de forma clara y educativa:")[-1].strip()
+        return respuesta_limpia
+    else:
+        return f"Error {response.status_code}: {response.text}"
+
 
 class IAHelperThread(threading.Thread):
     """
-    Esta clase ejecuta la solicitud a la API en un hilo para evitar bloquear la interfaz.
-    El parámetro callback es una función que recibe el resultado cuando esté disponible.
+    Ejecuta una sugerencia de IA en un hilo para no bloquear la interfaz.
     """
-    def __init__(self, juego, estado_json, callback):
+    def __init__(self, juego, estado_texto, callback):
         super().__init__()
         self.juego = juego
-        self.estado_json = estado_json
+        self.estado_texto = estado_texto
         self.callback = callback
 
     def run(self):
         try:
-            resultado = solicitar_sugerencia(self.juego, self.estado_json)
+            resultado = solicitar_sugerencia(self.juego, self.estado_texto)
             self.callback(resultado)
         except Exception as e:
             self.callback(f"Error al conectar con la IA: {e}")
