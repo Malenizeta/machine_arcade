@@ -1,4 +1,5 @@
 import pygame, sys, os
+import textwrap
 
 
 SCREEN_WIDTH = 700
@@ -31,6 +32,78 @@ def run_caballo_tour():
     from gui import caballo_gui
     caballo_gui.caballo_tour(8)
 
+def wrap_text(text, font, max_width):
+    lines = []
+    for paragraph in text.split('\n'):
+        words = paragraph.split(' ')
+        line = ''
+        for word in words:
+            test_line = f"{line} {word}".strip()
+            if font.size(test_line)[0] <= max_width:
+                line = test_line
+            else:
+                lines.append(line)
+                line = word
+        lines.append(line)
+    return lines
+
+def abrir_chatbot(screen):
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from ia_client import consultar_chatbot
+
+    font = pygame.font.Font(FONT_PATH, 18)
+
+    # Cargar imagen de fondo desde assets
+    background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "../assets/images/Chatbot.jpg"))
+    background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    # Definir zona blanca (ajústala según tu imagen)
+    cuadro_x, cuadro_y = 130, 50
+    cuadro_ancho, cuadro_alto = 460, 500
+
+    input_box = pygame.Rect(cuadro_x + 180, cuadro_y + cuadro_alto - 40, 50, 32)
+    color_inactive = pygame.Color('lightskyblue3')
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    text = ''
+    respuesta = ''
+    clock = pygame.time.Clock()
+
+    while True:
+        screen.blit(background_image, (0, 0))
+
+        # Mostrar respuesta dentro del recuadro blanco
+        if respuesta:
+            wrapped_lines = wrap_text(respuesta, font, cuadro_ancho - 20)
+            for i, line in enumerate(wrapped_lines):
+                if i * 24 < cuadro_alto - 200:  # evitar desbordar
+                    rendered = font.render(line, True, BLACK)
+                    screen.blit(rendered, (cuadro_x + 80, cuadro_y + 50 + i * 24))
+
+        # Entrada de texto
+        txt_surface = font.render(text, True, color)
+        input_box.w = max(320, txt_surface.get_width() + 10)
+        screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+        pygame.draw.rect(screen, color, input_box, 2)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                active = input_box.collidepoint(event.pos)
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN and active:
+                if event.key == pygame.K_RETURN:
+                    respuesta = consultar_chatbot(text)
+                    text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                else:
+                    text += event.unicode
 
 def draw_menu(screen):
    
@@ -64,60 +137,6 @@ def draw_menu(screen):
 
     return button_torres, button_reinas, button_caballo, button_chatbot
 
-def abrir_chatbot(screen):
-    from ia_client import consultar_chatbot
-    font = pygame.font.Font(None, 32)
-    input_box = pygame.Rect(50, 600, 600, 32)
-    color_inactive = pygame.Color('lightskyblue3')
-    color_active = pygame.Color('dodgerblue2')
-    color = color_inactive
-    active = False
-    text = ''
-    respuesta = ''
-    clock = pygame.time.Clock()
-
-    while True:
-        screen.fill((0, 0, 0))
-        pygame.draw.rect(screen, (30, 30, 30), (20, 20, 660, 550))  # área de diálogo
-
-        question_text = font.render('Pregunta al Chatbot IA:', True, WHITE)
-        screen.blit(question_text, (50, 560))
-
-        # Mostrar respuesta
-        wrapped = respuesta.split('\n')
-        for i, line in enumerate(wrapped):
-            line_surface = font.render(line, True, WHITE)
-            screen.blit(line_surface, (60, 40 + i * 25))
-
-        # Entrada de texto
-        txt_surface = font.render(text, True, color)
-        width = max(600, txt_surface.get_width()+10)
-        input_box.w = width
-        screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
-        pygame.draw.rect(screen, color, input_box, 2)
-
-        pygame.display.flip()
-        clock.tick(30)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return  # Volver al menú
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_box.collidepoint(event.pos):
-                    active = not active
-                else:
-                    active = False
-                color = color_active if active else color_inactive
-            if event.type == pygame.KEYDOWN:
-                if active:
-                    if event.key == pygame.K_RETURN:
-                        respuesta = consultar_chatbot(text)
-                        text = ''
-                    elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                    else:
-                        text += event.unicode
-
 
 def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -148,3 +167,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
