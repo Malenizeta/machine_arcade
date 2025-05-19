@@ -9,6 +9,26 @@ Este proyecto consiste en el desarrollo de una **Máquina Arcade distribuida** i
 Cada juego incorpora una **interfaz gráfica**, ambientada en el mundo de Mario Bros. 
 
 ---
+## Nuevas funcionalidades añadidas (segunda parte práctica)
+
+**1. Chatbot interactivo desde el menú principal:**
+
+Se ha incorporado un chatbot accesible directamente desde el menú principal, que permite realizar consultas interactivas sobre fórmulas, estrategias y dudas relacionadas con los juegos. Este chatbot enriquece la dimensión educativa de la aplicación y ofrece soporte en tiempo real al usuario.
+
+![Captura de pantalla 2025-05-19 183804](https://github.com/user-attachments/assets/4c3b7f9c-8184-44a2-b140-3ff6d0388b11)
+![Captura de pantalla 2025-05-19 193651](https://github.com/user-attachments/assets/bba6fb45-30b6-49e1-888b-6afdc1fec2f9)
+
+**2. Sistema de ayuda basado en IA en cada juego:**
+
+En cada juego se ha añadido un botón “Ayuda IA” que permite enviar el estado actual del juego a un servicio externo de inteligencia artificial. Este servicio devuelve recomendaciones y sugerencias estratégicas para ayudar al jugador durante la partida.
+![Captura de pantalla 2025-05-20 010814](https://github.com/user-attachments/assets/d9e5864d-5e67-4d27-8d02-699f38fc02b9)
+![Captura de pantalla 2025-05-20 005138](https://github.com/user-attachments/assets/ad84fb9b-e29a-428f-afbf-675677e186e9)
+![Captura de pantalla 2025-05-20 002519](https://github.com/user-attachments/assets/3076bc14-4e5c-49b0-9d2e-24c313b852b1)
+
+Nota: Debido al límite de consultas gratuitas al servicio de IA, actualmente no se dispone de imágenes que muestren las respuestas devueltas en tiempo real. Sin embargo, se han realizado pruebas exhaustivas previas que confirman el correcto funcionamiento del sistema. Por ejemplo, en el caso del chatbot, existe una captura de pantalla con una respuesta típica, aunque la interfaz aún estaba en desarrollo.
+![Captura de pantalla 2025-05-19 184738](https://github.com/user-attachments/assets/c3b318f5-f8a9-45d2-91b6-df5128ebe165)
+
+---
 
 ## Juegos Incluidos
 
